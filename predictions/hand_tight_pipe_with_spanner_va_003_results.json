@@ -1,0 +1,18 @@
+[
+  {
+    "start": 0.0,
+    "end": 14.948282241821289,
+    "duration": 14.948282241821289,
+    "coarse_action": "hand",
+    "fine_action": "hand_tight_pipe_with_spanner_va",
+    "num_frames": 8
+  },
+  {
+    "start": 17.083751678466797,
+    "end": 23.490158081054688,
+    "duration": 6.406406402587891,
+    "coarse_action": "get",
+    "fine_action": "get_spanner_rnva",
+    "num_frames": 4
+  }
+]

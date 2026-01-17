@@ -1,0 +1,18 @@
+[
+  {
+    "start": 0.0,
+    "end": 2.1354689598083496,
+    "duration": 2.1354689598083496,
+    "coarse_action": "mark",
+    "fine_action": "mark_bolts_with_marker_rnva",
+    "num_frames": 2
+  },
+  {
+    "start": 4.270937919616699,
+    "end": 12.812812805175781,
+    "duration": 8.541874885559082,
+    "coarse_action": "hand",
+    "fine_action": "hand_tight_bolts_va",
+    "num_frames": 5
+  }
+]

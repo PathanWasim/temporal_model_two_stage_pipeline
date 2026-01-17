@@ -1,0 +1,16 @@
+================================================================================
+ACTION TIMELINE
+================================================================================
+
+Segment 1:
+  Time: 0.00s - 0.00s (0.00s)
+  Coarse Action: collect
+  Fine Action: collect_washer_bolts_rnva
+  Frames: 1
+
+Segment 2:
+  Time: 2.14s - 21.35s (19.22s)
+  Coarse Action: hand
+  Fine Action: hand_tight_bolts_va
+  Frames: 10
+

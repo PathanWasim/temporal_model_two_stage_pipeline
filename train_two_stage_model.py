@@ -39,7 +39,7 @@ if torch.cuda.is_available():
     torch.cuda.manual_seed_all(SEED)
 
 # Paths
-CLIPS_DIR = "dataset"
+CLIPS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dataset")
 OUT_DIR = "outputs_two_stage"
 CACHE_DIR = os.path.join(OUT_DIR, "feat_cache")
 STAGE1_DIR = os.path.join(OUT_DIR, "stage1")
@@ -85,12 +85,15 @@ def normalize_label_from_filename(path: str) -> str:
     return stem if stem else "unknown"
 
 def extract_folder_label(path: str) -> str:
-    """Extract label from parent folder name"""
-    parent = Path(path).parent.name.lower()
-    parent = re.sub(r"[\(\)\[\]\{\}]", " ", parent)
-    parent = re.sub(r"[^a-z0-9]+", "_", parent)
-    parent = re.sub(r"_+", "_", parent).strip("_")
-    return parent if parent else "unknown"
+    """Extract label from filename (removing _001, _002, etc. and file extension)"""
+    # Get the filename without extension
+    filename = os.path.basename(path)
+    # Remove file extension
+    filename = os.path.splitext(filename)[0]
+    # Remove trailing _001, _002, etc.
+    if '_' in filename and filename.split('_')[-1].isdigit():
+        filename = '_'.join(filename.split('_')[:-1])
+    return filename if filename else "unknown"
 
 def stage1_from_fine_label(fine_label: str) -> str:
     """FirstWord strategy: extract first token before underscore"""
@@ -113,11 +116,12 @@ def extract_value_category(fine_label: str) -> str:
 # VIDEO SCANNING
 # ============================================================
 def list_videos(root: str) -> List[str]:
-    """Recursively find all video files"""
-    exts = ["*.mp4", "*.avi", "*.mov", "*.mkv", "*.MP4", "*.AVI", "*.MOV", "*.MKV"]
+    """Find all video files in the given directory (non-recursive)"""
+    exts = [".mp4", ".avi", ".mov", ".mkv", ".MP4", ".AVI", ".MOV", ".MKV"]
     out = []
-    for e in exts:
-        out.extend(glob.glob(os.path.join(root, "**", e), recursive=True))
+    for f in os.listdir(root):
+        if any(f.lower().endswith(ext) for ext in exts):
+            out.append(os.path.join(root, f))
     return sorted(out)
 
 # ============================================================
