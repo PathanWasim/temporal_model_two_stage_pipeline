@@ -1,0 +1,16 @@
+================================================================================
+ACTION TIMELINE
+================================================================================
+
+Segment 1:
+  Time: 0.00s - 14.95s (14.95s)
+  Coarse Action: hand
+  Fine Action: hand_tight_pipe_with_spanner_va
+  Frames: 8
+
+Segment 2:
+  Time: 17.08s - 23.49s (6.41s)
+  Coarse Action: get
+  Fine Action: get_spanner_rnva
+  Frames: 4
+

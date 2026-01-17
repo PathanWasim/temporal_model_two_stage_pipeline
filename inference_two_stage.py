@@ -18,10 +18,15 @@ from train_two_stage_model import (
     DEVICE, TARGET_FPS, CLIP_LEN, FEATURE_DIM
 )
 
+import os
+import sys
+from pathlib import Path
+
 # Paths
-STAGE1_DIR = "outputs_two_stage/stage1"
-STAGE2_DIR = "outputs_two_stage/stage2"
-TEST_DIR = "test"
+BASE_DIR = Path(__file__).parent
+STAGE1_DIR = os.path.join(BASE_DIR, "outputs_two_stage", "stage1")
+STAGE2_DIR = os.path.join(BASE_DIR, "outputs_two_stage", "stage2")
+TEST_DIR = os.path.join(BASE_DIR, "..", "testing")
 
 # Smoothing parameters (from reference notebook)
 SMOOTH_K_STAGE1 = 9  # Odd window for stage-1 smoothing
@@ -199,10 +204,25 @@ def visualize_timeline(segments: List[Dict], output_path: str):
             f.write(f"  Frames: {seg['num_frames']}\n")
             f.write("\n")
 
+def parse_args():
+    import argparse
+    parser = argparse.ArgumentParser(description='Two-Stage Temporal Action Recognition - Inference')
+    parser.add_argument('--video_path', type=str, help='Path to input video file')
+    parser.add_argument('--output_dir', type=str, default='predictions', 
+                       help='Directory to save output files')
+    parser.add_argument('--test_dir', type=str, default=TEST_DIR,
+                       help='Directory containing test videos')
+    return parser.parse_args()
+
 def main():
+    args = parse_args()
+    
     print("=" * 80)
     print("TWO-STAGE TEMPORAL ACTION RECOGNITION - INFERENCE")
     print("=" * 80)
+    
+    # Create output directory
+    os.makedirs(args.output_dir, exist_ok=True)
     
     # Load R3D-18 backbone
     print("\n🧠 Loading R3D-18 feature extractor...")
@@ -237,49 +257,57 @@ def main():
     
     print(f"\n   Total Stage-2 models loaded: {len(stage2_models)}")
     
-    # Find test videos
-    print(f"\n🔍 Scanning test directory: {TEST_DIR}")
+    # Process videos
     test_videos = []
-    if os.path.exists(TEST_DIR):
-        for ext in ["*.mp4", "*.avi", "*.mov", "*.MP4", "*.AVI", "*.MOV"]:
-            import glob
-            test_videos.extend(glob.glob(os.path.join(TEST_DIR, ext)))
+    if args.video_path and os.path.isfile(args.video_path):
+        # Single video mode
+        test_videos = [args.video_path]
+    else:
+        # Directory mode
+        print(f"\n🔍 Scanning test directory: {args.test_dir}")
+        if os.path.exists(args.test_dir):
+            for ext in ["*.mp4", "*.avi", "*.mov", "*.MP4", "*.AVI", "*.MOV"]:
+                import glob
+                test_videos.extend(glob.glob(os.path.join(args.test_dir, "**", ext), recursive=True))
     
-    if len(test_videos) == 0:
+    if not test_videos:
         print("   ⚠️  No test videos found")
         return
     
     print(f"   Found {len(test_videos)} test videos")
     
     # Process each test video
-    os.makedirs("inference_results", exist_ok=True)
-    
     for video_path in test_videos:
         try:
+            video_name = os.path.splitext(os.path.basename(video_path))[0]
+            print(f"\n Processing: {video_name}")
+            output_path = os.path.join(args.output_dir, f"{video_name}_output.mp4")
+
+            # Run inference
             segments = inference_two_stage(
                 video_path, backbone_r3d, r3d_mean, r3d_std,
                 stage1_model, stage1_l2i, stage1_i2l,
                 stage2_registry, stage2_models, stage2_label_maps
             )
-            
+
             # Save results
-            video_name = Path(video_path).stem
-            json_path = f"inference_results/{video_name}_timeline.json"
-            txt_path = f"inference_results/{video_name}_timeline.txt"
-            
-            with open(json_path, "w") as f:
+            output_json = os.path.join(args.output_dir, f"{video_name}_results.json")
+            output_txt = os.path.join(args.output_dir, f"{video_name}_timeline.txt")
+
+            with open(output_json, 'w') as f:
                 json.dump(segments, f, indent=2)
-            
-            visualize_timeline(segments, txt_path)
-            
-            print(f"   💾 Results saved:")
-            print(f"      - {json_path}")
-            print(f"      - {txt_path}")
-            
+
+            visualize_timeline(segments, output_txt)
+            print(f"   Results saved to {output_json} and {output_txt}")
+
         except Exception as e:
-            print(f"   ❌ Error processing {Path(video_path).name}: {e}")
-    
+            print(f"   Error processing {video_path}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+
     print("\n" + "=" * 80)
+    print(" Inference completed!")
+    print(f" Results saved to: {os.path.abspath(args.output_dir)}")
     print("✅ INFERENCE COMPLETE")
     print("=" * 80)
     print(f"\nResults saved in: inference_results/")

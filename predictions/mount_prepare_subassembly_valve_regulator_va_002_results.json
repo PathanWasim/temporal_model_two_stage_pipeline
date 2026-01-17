@@ -1,0 +1,18 @@
+[
+  {
+    "start": 0.0,
+    "end": 29.896564483642578,
+    "duration": 29.896564483642578,
+    "coarse_action": "mount",
+    "fine_action": "mount_o_ring_on_valve_regulator_va",
+    "num_frames": 15
+  },
+  {
+    "start": 32.03203201293945,
+    "end": 46.980316162109375,
+    "duration": 14.948284149169922,
+    "coarse_action": "hand",
+    "fine_action": "hand_tight_nut_with_spanner_va",
+    "num_frames": 8
+  }
+]

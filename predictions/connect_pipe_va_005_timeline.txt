@@ -1,0 +1,16 @@
+================================================================================
+ACTION TIMELINE
+================================================================================
+
+Segment 1:
+  Time: 0.00s - 2.14s (2.14s)
+  Coarse Action: mark
+  Fine Action: mark_bolts_with_marker_rnva
+  Frames: 2
+
+Segment 2:
+  Time: 4.27s - 12.81s (8.54s)
+  Coarse Action: hand
+  Fine Action: hand_tight_bolts_va
+  Frames: 5
+
