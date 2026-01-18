@@ -37,11 +37,17 @@ MIN_SEG_DUR_S = 1.0
 
 # Video overlay parameters
 OVERLAY_COLORS = {
-    "VA": (0, 255, 0),      # Green
-    "RNVA": (0, 165, 255),  # Orange (BGR format)
-    "NVA": (0, 0, 255),     # Red
+    "VA": (0, 255, 0),          # Bright Green
+    "RNVA": (0, 140, 255),      # Bright Orange (BGR format)
+    "NVA": (0, 0, 255),         # Bright Red
     "UNKNOWN": (128, 128, 128)  # Gray
 }
+
+# Text styling for better visibility
+FONT_SCALE = 0.8
+FONT_THICKNESS = 3
+BACKGROUND_ALPHA = 0.7  # More opaque background
+TEXT_ALPHA = 0.3        # Less transparent overlay
 
 def load_label_map(path: str) -> Dict:
     """Load label map from JSON"""
@@ -208,11 +214,11 @@ def create_video_overlay(video_path: str, prediction: Dict, output_path: str):
     # Get color for value category
     color = OVERLAY_COLORS.get(value_category, OVERLAY_COLORS["UNKNOWN"])
     
-    # Text settings
+    # Text settings for better visibility
     font = cv2.FONT_HERSHEY_SIMPLEX
-    font_scale = 0.7
-    thickness = 2
-    line_height = 30
+    font_scale = FONT_SCALE
+    thickness = FONT_THICKNESS
+    line_height = 35
     
     # Overlay text
     overlay_lines = [
@@ -227,14 +233,17 @@ def create_video_overlay(video_path: str, prediction: Dict, output_path: str):
         if not ret:
             break
         
-        # Add semi-transparent background for text
+        # Add more opaque background for better text visibility
         overlay = frame.copy()
-        cv2.rectangle(overlay, (10, 10), (600, 120), (0, 0, 0), -1)
-        frame = cv2.addWeighted(frame, 0.7, overlay, 0.3, 0)
+        cv2.rectangle(overlay, (10, 10), (700, 130), (0, 0, 0), -1)
+        frame = cv2.addWeighted(frame, BACKGROUND_ALPHA, overlay, TEXT_ALPHA, 0)
         
-        # Add text lines
+        # Add white outline for text (better contrast)
         for i, line in enumerate(overlay_lines):
-            y_pos = 40 + i * line_height
+            y_pos = 45 + i * line_height
+            # White outline
+            cv2.putText(frame, line, (20, y_pos), font, font_scale, (255, 255, 255), thickness + 2)
+            # Colored text on top
             cv2.putText(frame, line, (20, y_pos), font, font_scale, color, thickness)
         
         # Write frame
