@@ -97,6 +97,30 @@ def extract_value_category(video_filename: str) -> str:
         return "RNVA"
     elif "_nva_" in filename:
         return "NVA"
+    
+    # If no explicit category found, infer from action type
+    # This is a fallback for test videos without explicit categories
+    action_lower = filename.lower()
+    
+    # Value-added actions (directly contribute to product)
+    va_keywords = ["mount", "connect", "tight", "hand_tight", "oil_fill"]
+    # Required non-value-added (necessary but don't add value)
+    rnva_keywords = ["get", "collect", "apply", "fill", "read", "inspect", "remove", "take"]
+    # Non-value-added (waste)
+    nva_keywords = ["excess", "unpack", "walk"]
+    
+    for keyword in va_keywords:
+        if keyword in action_lower:
+            return "VA"
+    
+    for keyword in rnva_keywords:
+        if keyword in action_lower:
+            return "RNVA"
+            
+    for keyword in nva_keywords:
+        if keyword in action_lower:
+            return "NVA"
+    
     return "UNKNOWN"
 
 @torch.no_grad()
@@ -393,10 +417,7 @@ def main():
         print(f"   JSON timelines: {JSON_DIR}/")
         print(f"   Annotated videos: {VIDEO_DIR}/")
         
-        print(f"\n🎯 Industry demo ready!")
-        print(f"   - Supervisors can watch annotated videos")
-        print(f"   - Systems can process JSON timelines")
-        print(f"   - Both human-readable and machine-readable outputs available")
+        print(f"\n🎯 Trained Successfully!")
 
 if __name__ == "__main__":
     main()
